@@ -17,7 +17,7 @@ const LetterDisplay = ({ word }) => {
         <div
           key={i}
           className="letter text-8xl font-semibold xs:text-[120px] sm:text-[140px] md:text-[160px] lg:text-[180px] xl:text-[200px] 2xl:text-[220px]"
-          style={{ fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif" }}
+          style={{ fontFamily: "'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif", willChange: 'transform' }}
           data-speed={getRandomSpeed()}
         >
           {char === ' ' ? '\u00A0' : char}
@@ -35,21 +35,23 @@ function getRandomRotation() {
 // Animation function
 function animateLettersOnScroll(ref) {
   const nodes = ref.current?.querySelectorAll('.letter') || [];
+  const amplitude = window.innerHeight * 0.85;
   nodes.forEach(letter => {
     const speed = parseFloat(letter.dataset.speed || '1');
+    const yTarget = (1 - speed) * amplitude;
     gsap.to(letter, {
-      // Restored original highlight amplitude for hero text animation
-      // Uses page height for movement to bring back the bold effect.
-      y: (1 - speed) * ScrollTrigger.maxScroll(window),
+      y: yTarget,
       rotation: getRandomRotation(),
       ease: 'power2.out',
       duration: 0.8,
       scrollTrigger: {
-        trigger: document.documentElement,
-        start: 0,
-        end: window.innerHeight,
-        scrub: 0.5,
-        invalidateOnRefresh: true
+        trigger: ref.current,
+        start: 'top top',
+        end: '+=120%',
+        scrub: 1,
+        invalidateOnRefresh: true,
+        onLeave: () => gsap.set(letter, { y: yTarget, opacity: 0 }),
+        onEnterBack: () => gsap.set(letter, { y: 0, opacity: 1 })
       }
     });
   });
@@ -60,27 +62,46 @@ const HeroAnimation = () => {
 
   useEffect(() => {
     let ctx;
-    // A small timeout to ensure everything is rendered before the animation starts
+    let pinTrigger;
+    let visibilityTrigger;
     const timer = setTimeout(() => {
       if (!ref.current) return;
       ctx = gsap.context(() => {
         animateLettersOnScroll(ref);
       }, ref);
-      // Removed recursive refresh listener to prevent stack overflow
-      // Rely on invalidateOnRefresh for correct behavior
+
+      // Pin the hero briefly to maximize visibility while the effect runs
+      pinTrigger = ScrollTrigger.create({
+        trigger: ref.current,
+        start: 'top top',
+        end: '+=120%',
+        pin: true,
+        pinSpacing: true,
+        anticipatePin: 1
+      });
+
+      // Hide the hero entirely once it leaves its pin range
+      visibilityTrigger = ScrollTrigger.create({
+        trigger: ref.current,
+        start: 'top top',
+        end: '+=120%',
+        onEnter: () => gsap.set(ref.current, { autoAlpha: 1 }),
+        onLeave: () => gsap.set(ref.current, { autoAlpha: 0 }),
+        onEnterBack: () => gsap.set(ref.current, { autoAlpha: 1 })
+      });
     }, 100);
     
     return () => {
       clearTimeout(timer);
+      pinTrigger?.kill();
+      visibilityTrigger?.kill();
       ctx?.revert();
     };
   }, []);
 
 
   return (
-    <div ref={ref} className="ml-8 scroll-smooth relative overflow-hidden">
-
-
+    <div ref={ref} className="ml-8 scroll-smooth relative h-full overflow-hidden">
       <div className="-mt-28 mb-36 flex h-screen flex-col justify-end lg:mb-24">
         <div className="flex flex-wrap">
           <LetterDisplay word="I like to Learn" />

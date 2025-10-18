@@ -52,6 +52,7 @@ const ContactForm = () => {
 
       const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
+        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
@@ -59,13 +60,22 @@ const ContactForm = () => {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
-      if (data.success) {
+      let data;
+      const contentType = res.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        data = { success: res.ok, message: text };
+      }
+
+      if (res.ok && data?.success) {
         setResult({ ok: true, message: 'Thanks! Your message has been sent.' });
         setValues(initialValues);
         setErrors({});
       } else {
-        setResult({ ok: false, message: data.message || 'Sorry, there was an error sending your message.' });
+        const message = data?.message || `Error ${res.status}: ${res.statusText || 'Something went wrong'}`;
+        setResult({ ok: false, message });
       }
     } catch (err) {
       setResult({ ok: false, message: 'Network error. Please try again later.' });
