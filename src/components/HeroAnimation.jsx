@@ -38,10 +38,9 @@ function animateLettersOnScroll(ref) {
   nodes.forEach(letter => {
     const speed = parseFloat(letter.dataset.speed || '1');
     gsap.to(letter, {
-      // ** REVERTED TO THE ORIGINAL LOGIC WITH A SMALL MODIFIER **
-      // This brings back the big explosion based on page height, but the '* 0.4'
-      // dampens it just enough to prevent letters from leaking into the next section.
-      y: (1 - speed) * ScrollTrigger.maxScroll(window) * 0.4,
+      // Restored original highlight amplitude for hero text animation
+      // Uses page height for movement to bring back the bold effect.
+      y: (1 - speed) * ScrollTrigger.maxScroll(window),
       rotation: getRandomRotation(),
       ease: 'power2.out',
       duration: 0.8,
@@ -60,14 +59,21 @@ const HeroAnimation = () => {
   const ref = useRef(null);
 
   useEffect(() => {
+    let ctx;
     // A small timeout to ensure everything is rendered before the animation starts
     const timer = setTimeout(() => {
       if (!ref.current) return;
-      animateLettersOnScroll(ref);
-      ScrollTrigger.addEventListener('refreshInit', () => ScrollTrigger.refresh());
+      ctx = gsap.context(() => {
+        animateLettersOnScroll(ref);
+      }, ref);
+      // Removed recursive refresh listener to prevent stack overflow
+      // Rely on invalidateOnRefresh for correct behavior
     }, 100);
     
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      ctx?.revert();
+    };
   }, []);
 
 

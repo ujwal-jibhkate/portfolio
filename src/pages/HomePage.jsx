@@ -1,20 +1,60 @@
 import HeroAnimation from '../components/HeroAnimation';
 import AboutPreview from '../components/AboutPreview';
-import ProjectsPreview from '../components/ProjectsPreview';
-import ScrollIndicator from '../components/ScrollIndicator'; // Import the scroll button
+import ScrollIndicator from '../components/ScrollIndicator';
+import InvitationSection from '../components/InvitationSection';
+import { useEffect } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+// Register ScrollTrigger plugin
+gsap.registerPlugin(ScrollTrigger);
 
 const HomePage = () => {
+  // Add scroll animations
+  useEffect(() => {
+    // Animation for section transitions
+    const sections = document.querySelectorAll('section');
+    
+    sections.forEach((section, index) => {
+      if (section.classList.contains('about-preview-section')) return;
+      gsap.fromTo(section, 
+        { opacity: 0, y: 50 },
+        { 
+          opacity: 1, 
+          y: 0, 
+          duration: 0.8,
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 80%',
+            end: 'top 20%',
+            toggleActions: 'play none none reverse'
+          }
+        }
+      );
+    });
+    
+    return () => {
+      // Clean up ScrollTrigger instances
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+    };
+  }, []);
+
   return (
     <>
-      <HeroAnimation />
-      
-      {/* The scroll button now lives on the page itself, not inside a component.
-        We tell it to target the unique class name of the next section.
-      */}
-      <ScrollIndicator targetSelector=".about-preview-section" />
+      <section className="hero-section h-screen">
+        <HeroAnimation />
+      </section>
 
-      <AboutPreview />
-      <ProjectsPreview />
+      <section className="about-preview-section">
+        <AboutPreview />
+      </section>
+      
+      <section className="invitation-section">
+        <InvitationSection />
+      </section>
+      
+      {/* Fixed ScrollIndicator that persists across all screens */}
+      <ScrollIndicator sectionsList={[".hero-section", ".about-preview-section", ".invitation-section"]} />
     </>
   );
 };

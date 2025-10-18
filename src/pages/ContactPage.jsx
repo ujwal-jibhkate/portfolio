@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { gsap } from 'gsap';
 import ContactLink from '../components/ContactLink';
+import ContactForm from '../components/ContactForm';
 
 // Your contact information
 const contactData = [
@@ -24,6 +25,13 @@ const ContactPage = () => {
         stagger: 0.2, // Animate each link 0.2s after the previous one
         delay: 0.3,
       });
+      gsap.from('.contact-form', {
+        y: 80,
+        opacity: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+        delay: 0.4,
+      });
     }, containerRef);
 
     return () => ctx.revert();
@@ -42,6 +50,10 @@ const ContactPage = () => {
         {contactData.map((item) => (
           <ContactLink key={item.title} title={item.title} href={item.href} />
         ))}
+      </div>
+
+      <div className="w-full max-w-2xl mt-12 contact-form">
+        <ContactForm />
       </div>
 
 
