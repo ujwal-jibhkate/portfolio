@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    }
+  ],
+  "env": {
+    "VITE_RESEND_API_KEY": "@vite_resend_api_key",
+    "VITE_EMAIL_TO": "@vite_email_to"
+  }
+}

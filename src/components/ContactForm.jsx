@@ -8,7 +8,7 @@ const ContactForm = () => {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState({ ok: null, message: '' });
 
-  const accessKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY;
+  const emailTo = import.meta.env.VITE_EMAIL_TO;
 
   const validate = () => {
     const next = {};
@@ -35,50 +35,52 @@ const ContactForm = () => {
 
     if (!validate()) return;
 
-    if (!accessKey) {
-      setResult({ ok: false, message: 'Web3Forms not configured. Please set VITE_WEB3FORMS_ACCESS_KEY.' });
+    if (!emailTo) {
+      setResult({ ok: false, message: 'Email configuration missing. Please set VITE_EMAIL_TO.' });
       return;
     }
 
     setSubmitting(true);
     try {
-      const payload = {
-        access_key: accessKey,
-        name: values.name,
-        email: values.email,
-        subject: values.subject,
-        message: values.message,
-      };
-
-      const res = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch('/api/send', {
         method: 'POST',
-        mode: 'cors',
         headers: {
           'Content-Type': 'application/json',
-          Accept: 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          from: values.email,
+          to: emailTo,
+          subject: `Portfolio Contact: ${values.subject}`,
+          text: `Name: ${values.name}\nEmail: ${values.email}\n\nMessage:\n${values.message}`,
+          html: `
+            <h2>New Contact Form Submission</h2>
+            <p><strong>From:</strong> ${values.name} (${values.email})</p>
+            <p><strong>Subject:</strong> ${values.subject}</p>
+            <p><strong>Message:</strong></p>
+            <p>${values.message.replace(/\n/g, '<br>')}</p>
+          `,
+        }),
       });
 
-      let data;
-      const contentType = res.headers.get('content-type') || '';
-      if (contentType.includes('application/json')) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        data = { success: res.ok, message: text };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      if (res.ok && data?.success) {
+      const data = await response.json();
+
+      if (data?.success) {
         setResult({ ok: true, message: 'Thanks! Your message has been sent.' });
         setValues(initialValues);
         setErrors({});
       } else {
-        const message = data?.message || `Error ${res.status}: ${res.statusText || 'Something went wrong'}`;
-        setResult({ ok: false, message });
+        throw new Error(data?.error || 'Failed to send message');
       }
     } catch (err) {
-      setResult({ ok: false, message: 'Network error. Please try again later.' });
+      console.error('Contact form error:', err);
+      setResult({ 
+        ok: false, 
+        message: err.message || 'Network error. Please try again later.' 
+      });
     } finally {
       setSubmitting(false);
     }

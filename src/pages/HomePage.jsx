@@ -41,15 +41,15 @@ const HomePage = () => {
 
   return (
     <>
-      <section className="hero-section h-screen">
+      <section className="hero-section h-screen relative z-0">
         <HeroAnimation />
       </section>
 
-      <section className="about-preview-section">
+      <section className="about-preview-section relative z-10">
         <AboutPreview />
       </section>
       
-      <section className="invitation-section">
+      <section className="invitation-section relative z-0">
         <InvitationSection />
       </section>
       

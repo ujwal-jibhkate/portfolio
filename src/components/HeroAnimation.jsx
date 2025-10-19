@@ -101,7 +101,7 @@ const HeroAnimation = () => {
 
 
   return (
-    <div ref={ref} className="ml-8 scroll-smooth relative h-full overflow-hidden">
+    <div ref={ref} className="ml-8 scroll-smooth relative h-full overflow-hidden pointer-events-none">
       <div className="-mt-28 mb-36 flex h-screen flex-col justify-end lg:mb-24">
         <div className="flex flex-wrap">
           <LetterDisplay word="I like to Learn" />

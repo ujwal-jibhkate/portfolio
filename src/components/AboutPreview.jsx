@@ -49,7 +49,7 @@ const AboutPreview = () => {
   };
 
   return (
-    <section className="about-preview-section h-screen bg-white text-black flex items-center justify-center">
+    <section className="h-screen bg-white text-black flex items-center justify-center">
       <div className="container mx-auto">
         <div className="grid md:grid-cols-2 gap-16 items-center">
           <div className="flex justify-center">
@@ -71,7 +71,10 @@ const AboutPreview = () => {
                 <span className="relative">Learn More About Me</span>
               </button>
               <button
-                onClick={() => navigate('/projects')}
+                onClick={() => {
+                  console.log('Projects button clicked');
+                  navigate('/projects');
+                }}
                 className="bg-black hover:bg-zinc-800 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300"
               >
                 View My Work
