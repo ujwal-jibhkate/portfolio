@@ -1,9 +1,9 @@
 import { Resend } from 'resend';
 
 // Initialize Resend with API key
-const resend = new Resend(process.env.VITE_RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-export default async function handler(req, res) {
+export default async function handler(req) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
