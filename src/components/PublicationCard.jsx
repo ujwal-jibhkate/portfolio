@@ -8,7 +8,7 @@ const PublicationCard = ({ category, title, description, link }) => {
       href={link}
       target="_blank"
       rel="noopener noreferrer"
-      className="publication-card group relative block h-full"
+      className="publication-card group relative block"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -17,17 +17,17 @@ const PublicationCard = ({ category, title, description, link }) => {
 
       {/* Gradient frame with glass interior */}
       <div className="rounded-2xl p-[2px] bg-gradient-to-br from-sky-500 via-blue-600 to-purple-600">
-        <div className="rounded-2xl bg-white/85 backdrop-blur-md border border-white/60 p-6 md:p-8 flex flex-col h-full min-h-[22rem] w-[20rem] md:w-[22rem]
+        <div className="rounded-2xl bg-white/85 backdrop-blur-md border border-white/60 p-6 md:p-8 flex flex-col h-[24rem] w-[22rem]
                         shadow-lg transition-all duration-500 ease-in-out
                         group-hover:-translate-y-1 group-hover:shadow-sky-500/25">
           {/* Accent line */}
           <div className="h-[3px] w-20 bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 rounded-full mb-4" />
 
           <p className={`text-xs font-semibold uppercase tracking-wider transition-colors duration-300 ${isHovered ? 'text-sky-700' : 'text-sky-600'}`}>{category}</p>
-          <h3 className="mt-2 text-xl md:text-2xl font-bold text-gray-900">{title}</h3>
+          <h3 className="mt-2 text-xl md:text-2xl font-bold text-gray-900 clamp-2">{title}</h3>
 
           {/* Limit description height to keep cards consistent */}
-          <p className="mt-3 text-gray-700 flex-grow overflow-hidden max-h-28">{description}</p>
+          <p className="mt-3 text-gray-700 flex-grow overflow-hidden clamp-3">{description}</p>
 
           {/* Read more CTA */}
           <div className="mt-6 flex items-center text-sky-700 font-semibold">
